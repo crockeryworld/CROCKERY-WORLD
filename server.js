@@ -83,7 +83,7 @@ app.put("/update/:id", async (req, res) => {
 // ✅ IMPORTANT for Render
 const PORT = process.env.PORT || 5000;
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  res.sendFile(__dirname + "/index.html");
 });
 
 app.listen(PORT, () => {
