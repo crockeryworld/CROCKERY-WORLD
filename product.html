@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="product"></div>
+
+<script>
+const id = new URLSearchParams(window.location.search).get("id");
+
+async function load(){
+  let res = await fetch("/product/" + id);
+  let p = await res.json();
+
+  let images = p.images.map(i=>`<img src='${i}' width='100'>`).join("");
+
+  document.getElementById("product").innerHTML = `
+  <h2>${p.name}</h2>
+  ${images}
+  <p>${p.description}</p>
+  <p>₹${p.price}</p>`;
+}
+
+load();
+</script>
+
+</body>
+</html>
