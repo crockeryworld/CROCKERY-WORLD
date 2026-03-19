@@ -1,25 +1,118 @@
 <!DOCTYPE html>
 <html>
+<head>
+<title>Admin Dashboard</title>
+<style>
+body {
+  font-family: Arial;
+  background: #f1f3f6;
+  margin:0;
+}
+
+.login, .dashboard {
+  max-width: 500px;
+  margin: 50px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h2 {
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: black;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #ff9900;
+}
+
+.products {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.card {
+  background: white;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+img {
+  width:60px;
+  height:60px;
+  object-fit:cover;
+}
+</style>
+</head>
+
 <body>
 
-<h2>Add Product</h2>
+<!-- LOGIN -->
+<div class="login" id="loginBox">
+  <h2>Admin Login</h2>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
 
-<input id="name" placeholder="Name"><br>
-<input id="price" placeholder="Price"><br>
-<input id="category" placeholder="Category"><br>
-<input id="desc" placeholder="Description"><br>
+<!-- DASHBOARD -->
+<div class="dashboard" id="panel" style="display:none;">
+  <h2>Admin Dashboard</h2>
 
-<input id="i1" placeholder="Image 1"><br>
-<input id="i2" placeholder="Image 2"><br>
-<input id="i3" placeholder="Image 3"><br>
-<input id="i4" placeholder="Image 4"><br>
-<input id="i5" placeholder="Image 5"><br>
+  <h3>Add Product</h3>
+  <input id="name" placeholder="Name">
+  <input id="price" placeholder="Price">
+  <input id="category" placeholder="Category">
+  <input id="desc" placeholder="Description">
 
-<button onclick="add()">Add Product</button>
+  <input id="i1" placeholder="Image 1">
+  <input id="i2" placeholder="Image 2">
+  <input id="i3" placeholder="Image 3">
+  <input id="i4" placeholder="Image 4">
+  <input id="i5" placeholder="Image 5">
+
+  <button onclick="add()">Add Product</button>
+</div>
+
+<!-- PRODUCT LIST -->
+<div class="products" id="productList"></div>
 
 <script>
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "1234";
+
+function login(){
+  if(user.value === ADMIN_USER && pass.value === ADMIN_PASS){
+    loginBox.style.display = "none";
+    panel.style.display = "block";
+    loadProducts();
+  } else {
+    alert("Wrong credentials");
+  }
+}
+
+// ADD PRODUCT
 async function add(){
-  await fetch("http://localhost:5000/add-product",{
+  await fetch("/add-product", {
     method:"POST",
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
@@ -30,7 +123,35 @@ async function add(){
       images:[i1.value,i2.value,i3.value,i4.value,i5.value]
     })
   });
-  alert("Product Added");
+  alert("Added");
+  loadProducts();
+}
+
+// LOAD PRODUCTS
+async function loadProducts(){
+  let res = await fetch("/products");
+  let data = await res.json();
+
+  let html = "";
+  data.forEach(p=>{
+    html += `
+    <div class="card">
+      <div>
+        <img src="${p.images[0]}">
+        <b>${p.name}</b> - ₹${p.price}
+      </div>
+      <button onclick="deleteProduct('${p._id}')">Delete</button>
+    </div>`;
+  });
+
+  document.getElementById("productList").innerHTML = html;
+}
+
+// DELETE PRODUCT
+async function deleteProduct(id){
+  await fetch("/delete/" + id, { method:"DELETE" });
+  alert("Deleted");
+  loadProducts();
 }
 </script>
 
